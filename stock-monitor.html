@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>綠陰室 · Stock Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+KR:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep:  #111a13;
+    --green-mid:   #1e3323;
+    --green-soft:  #3a5e42;
+    --green-light: #6a9e78;
+    --green-pale:  #aecbb6;
+    --gold:        #c9a96e;
+    --cream:       #f4efe6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { min-height:100vh; background:var(--green-deep); font-family:'Noto Serif KR',serif; color:var(--cream); }
+
+  .page { max-width:520px; margin:0 auto; padding:48px 24px 60px; display:flex; flex-direction:column; gap:28px; }
+
+  .header { display:flex; flex-direction:column; gap:6px; }
+  .header-eyebrow { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:0.45em; color:var(--green-light); text-transform:uppercase; }
+  .header-title { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; font-style:italic; color:var(--cream); }
+  .header-meta { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:0.15em; color:rgba(174,203,182,0.45); display:flex; align-items:center; gap:10px; margin-top:4px; }
+  .status-dot { width:6px; height:6px; border-radius:50%; background:var(--green-light); animation:blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .summary { display:flex; gap:0; border:1px solid rgba(106,158,120,0.15); }
+  .summary-item { flex:1; padding:14px 12px; text-align:center; border-right:1px solid rgba(106,158,120,0.15); display:flex; flex-direction:column; gap:4px; }
+  .summary-item:last-child { border-right:none; }
+  .summary-label { font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:0.3em; color:rgba(174,203,182,0.5); text-transform:uppercase; }
+  .summary-value { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; color:var(--cream); }
+  .summary-value.highlight { color:var(--gold); }
+
+  .stock-list { display:flex; flex-direction:column; gap:6px; }
+  .stock-section-label { font-family:'Cormorant Garamond',serif; font-size:9px; letter-spacing:0.4em; color:rgba(174,203,182,0.4); text-transform:uppercase; padding:10px 0 4px; border-top:1px solid rgba(106,158,120,0.1); margin-top:6px; }
+  .stock-section-label:first-child { border-top:none; margin-top:0; padding-top:0; }
+
+  .stock-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(30,51,35,0.35); border:1px solid rgba(106,158,120,0.1); }
+  .stock-row.empty { opacity:0.4; }
+  .stock-rank { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:0.2em; color:rgba(174,203,182,0.6); min-width:32px; }
+  .stock-name { font-family:'Noto Serif KR',serif; font-size:13px; font-weight:300; color:rgba(240,248,242,0.9); flex:1; }
+  .stock-bar-wrap { width:80px; height:3px; background:rgba(106,158,120,0.1); border-radius:2px; overflow:hidden; flex-shrink:0; }
+  .stock-bar-fill { height:100%; border-radius:2px; background:linear-gradient(to right, var(--green-soft), var(--green-light)); transition:width 0.6s ease; }
+  .stock-bar-fill.low { background:linear-gradient(to right, #8b4513, #cd853f); }
+  .stock-count { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:300; color:var(--cream); min-width:32px; text-align:right; }
+  .stock-count.low { color:#cd853f; }
+  .stock-count.zero { color:rgba(106,158,120,0.3); text-decoration:line-through; }
+
+  .footer { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:0.25em; color:rgba(106,158,120,0.3); text-transform:uppercase; text-align:center; }
+  .error-msg { font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic; color:rgba(200,100,100,0.7); text-align:center; padding:20px; }
+  .loading { font-family:'Cormorant Garamond',serif; font-size:13px; font-style:italic; color:rgba(174,203,182,0.4); text-align:center; padding:40px; letter-spacing:0.1em; }
+
+  /* draw log */
+  .section-title { font-family:'Cormorant Garamond',serif; font-size:11px; letter-spacing:0.4em; color:var(--gold); text-transform:uppercase; margin-top:8px; }
+  .log-group-header { font-family:'Cormorant Garamond',serif; font-size:10px; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold); opacity:0.7; padding:10px 0 4px; border-top:1px solid rgba(106,158,120,0.12); margin-top:4px; }
+  .log-group-header:first-child { border-top:none; padding-top:0; margin-top:0; }
+  .log-row { display:flex; align-items:center; gap:12px; padding:8px 14px; background:rgba(30,51,35,0.3); border:1px solid rgba(106,158,120,0.08); }
+  .log-idx { font-family:'Cormorant Garamond',serif; font-size:13px; color:rgba(174,203,182,0.6); min-width:20px; }
+  .log-name { font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; color:var(--cream); flex:1; }
+  .log-empty { font-family:'Cormorant Garamond',serif; font-size:12px; font-style:italic; color:rgba(106,158,120,0.3); text-align:center; padding:20px; }
+  #drawLogList {
+    max-height:50vh;
+    overflow-y:auto;
+    display:flex; flex-direction:column; gap:4px;
+    -webkit-overflow-scrolling:touch;
+  }
+  #drawLogList::-webkit-scrollbar { width:3px; }
+  #drawLogList::-webkit-scrollbar-thumb { background:rgba(106,158,120,0.3); border-radius:2px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Verdant Room · 2026.6.20</div>
+    <div class="header-title">Stock Monitor</div>
+    <div class="header-meta">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="lastUpdated">불러오는 중...</span>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-item">
+      <div class="summary-label">참여자</div>
+      <div class="summary-value highlight" id="sumParticipants">—</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Total Left</div>
+      <div class="summary-value" id="sumTotal">—</div>
+    </div>
+    <div class="summary-item">
+      <div class="summary-label">Drawn</div>
+      <div class="summary-value" id="sumDrawn">—</div>
+    </div>
+  </div>
+
+  <div class="stock-list" id="stockList">
+    <div class="loading">잠시만요...</div>
+  </div>
+
+  <div class="section-title">Draw History</div>
+  <div id="drawLogList"><div class="log-empty">잠시만요...</div></div>
+
+  <div class="footer">30초마다 자동 갱신</div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://hiiodtlnvtytnvxflqsn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhpaW9kdGxudnR5dG52eGZscXNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDI3NzQsImV4cCI6MjA5NjQ3ODc3NH0.A8gAXo8UrKdgdiOmkP2q0O9EOPmSWNJqNcfAYIDzWsc';
+
+const RANK_ORDER = ['1st','2nd','3rd','4th','5th','6th','7th'];
+
+async function fetchStock() {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/stock?select=*&order=id', {
+    cache: 'no-store',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+    }
+  });
+  if (!res.ok) throw new Error('fetch failed');
+  return res.json();
+}
+
+function render(rows) {
+  const list = document.getElementById('stockList');
+  list.innerHTML = '';
+
+  const counterRow = rows.find(r => r.rank === 'counter');
+  const stockRows  = rows.filter(r => r.rank !== 'counter');
+
+  const totalLeft  = stockRows.reduce((s, r) => s + r.stock, 0);
+  const totalMax   = stockRows.reduce((s, r) => s + r.max_stock, 0);
+  const totalDrawn = totalMax - totalLeft;
+
+  document.getElementById('sumParticipants').textContent = counterRow ? counterRow.stock : '—';
+  document.getElementById('sumTotal').textContent = totalLeft;
+  document.getElementById('sumDrawn').textContent = totalDrawn;
+
+  const groups = {};
+  stockRows.forEach(r => {
+    if (!groups[r.rank]) groups[r.rank] = [];
+    groups[r.rank].push(r);
+  });
+
+  RANK_ORDER.forEach(rank => {
+    if (!groups[rank]) return;
+    const items = groups[rank];
+
+    const label = document.createElement('div');
+    label.className = 'stock-section-label';
+    label.textContent = rank + ' Prize';
+    list.appendChild(label);
+
+    items.forEach(item => {
+      const pct   = item.max_stock > 0 ? (item.stock / item.max_stock) * 100 : 0;
+      const isEmpty = item.stock === 0;
+      const isLow   = !isEmpty && pct <= 20;
+
+      const row = document.createElement('div');
+      row.className = 'stock-row' + (isEmpty ? ' empty' : '');
+      row.innerHTML = `
+        <span class="stock-rank">${item.rank}</span>
+        <span class="stock-name">${item.name}</span>
+        <div class="stock-bar-wrap">
+          <div class="stock-bar-fill ${isLow ? 'low' : ''}" style="width:${pct}%"></div>
+        </div>
+        <span class="stock-count ${isLow ? 'low' : ''} ${isEmpty ? 'zero' : ''}">${item.stock}</span>
+      `;
+      list.appendChild(row);
+    });
+  });
+
+  const now = new Date();
+  const t = now.getHours().toString().padStart(2,'0') + ':' +
+            now.getMinutes().toString().padStart(2,'0') + ':' +
+            now.getSeconds().toString().padStart(2,'0');
+  document.getElementById('lastUpdated').textContent = '마지막 업데이트 ' + t;
+}
+
+async function fetchDrawLog() {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/draw_log?select=*&order=id', {
+    cache: 'no-store',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  if (!res.ok) throw new Error('fetch failed');
+  return res.json();
+}
+
+function renderDrawLog(rows) {
+  const list = document.getElementById('drawLogList');
+  if (!list) return;
+  if (!rows || rows.length === 0) {
+    list.innerHTML = '<div class="log-empty">아직 뽑기 기록이 없어요</div>';
+    return;
+  }
+  list.innerHTML = '';
+  const groups = {};
+  rows.forEach(r => {
+    if (!groups[r.group_id]) groups[r.group_id] = [];
+    groups[r.group_id].push(r);
+  });
+  Object.keys(groups).map(Number).sort((a,b) => b-a).forEach(gid => {
+    const entries = groups[gid];
+    const time = new Date(entries[0].drawn_at).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    const header = document.createElement('div');
+    header.className = 'log-group-header';
+    header.textContent = `${entries[0].group_count}회 뽑기  ·  ${time}`;
+    list.appendChild(header);
+    entries.forEach(e => {
+      const row = document.createElement('div');
+      row.className = 'log-row';
+      row.innerHTML = `<span class="log-idx">${e.index_in_group}</span><span class="log-name">${e.variant_name}</span>`;
+      list.appendChild(row);
+    });
+  });
+}
+
+async function refresh() {
+  try {
+    const [rows, logRows] = await Promise.all([fetchStock(), fetchDrawLog()]);
+    render(rows);
+    renderDrawLog(logRows);
+    document.getElementById('statusDot').style.background = 'var(--green-light)';
+  } catch (e) {
+    document.getElementById('stockList').innerHTML = '<div class="error-msg">연결 오류 — 인터넷 확인 후 새로고침해주세요</div>';
+    document.getElementById('statusDot').style.background = '#cd5c5c';
+    document.getElementById('lastUpdated').textContent = '연결 실패';
+  }
+}
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+</body>
+</html>
