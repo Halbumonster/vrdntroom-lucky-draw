@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lucky Draw">
 <title>2026 The Verdant Room — Lucky Draw</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+KR:wght@300;400&display=swap" rel="stylesheet">
 <style>
@@ -951,8 +954,16 @@ async function resetCounter() {
 }
 
 document.addEventListener('touchmove', e => {
-  // 어드민 오버레이 안에서는 스크롤 허용
-  if (document.getElementById('adminOverlay').classList.contains('show')) return;
+  const overlay = document.getElementById('adminOverlay');
+  if (overlay && overlay.classList.contains('show')) {
+    // 어드민 안 스크롤 가능한 요소 위에서는 허용
+    const scrollables = ['adminOverlay','adminRows','stockBar','historyLog'];
+    let el = e.target;
+    while (el) {
+      if (scrollables.includes(el.id)) return;
+      el = el.parentElement;
+    }
+  }
   e.preventDefault();
 }, { passive:false });
 </script>
