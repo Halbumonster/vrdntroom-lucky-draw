@@ -267,6 +267,7 @@
     position:fixed; inset:0; background:rgba(5,10,6,0.97); z-index:200;
     display:none; flex-direction:column; align-items:center;
     overflow-y:auto; padding:48px 24px 40px; backdrop-filter:blur(16px);
+    touch-action:pan-y;
   }
   .admin-overlay.show { display:flex; }
   .admin-panel { width:100%; max-width:500px; display:flex; flex-direction:column; gap:9px; }
@@ -324,6 +325,7 @@
 
 
   #adminRows {
+    touch-action:pan-y;
     max-height:48vh;
     overflow-y:auto;
     display:flex; flex-direction:column; gap:9px;
@@ -332,6 +334,7 @@
   #adminRows::-webkit-scrollbar { width:3px; }
   #adminRows::-webkit-scrollbar-thumb { background:rgba(106,158,120,0.3); border-radius:2px; }
   #stockBar {
+    touch-action:pan-y;
     max-height:48vh;
     overflow-y:auto;
     display:flex; flex-direction:column; gap:6px;
@@ -947,7 +950,11 @@ async function resetCounter() {
   alert('초기화 완료!');
 }
 
-document.addEventListener('touchmove', e => e.preventDefault(), { passive:false });
+document.addEventListener('touchmove', e => {
+  // 어드민 오버레이 안에서는 스크롤 허용
+  if (document.getElementById('adminOverlay').classList.contains('show')) return;
+  e.preventDefault();
+}, { passive:false });
 </script>
 </body>
 </html>
