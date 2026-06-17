@@ -476,7 +476,7 @@ let PRIZES = [
   { rank:3, rankLabel:'3rd', weight:10,  particles:false, variants:[{ name:'미니우치와',           stock:12  }] },
   { rank:4, rankLabel:'4th', weight:10,  particles:false, variants:[{ name:'리유저블컵',           stock:12  }] },
   { rank:5, rankLabel:'5th', weight:82,  particles:false, variants:[{ name:'말랑핀버튼 쁘이대영',  stock:25  }, { name:'말랑핀버튼 뿌우대영', stock:25 }, { name:'말랑핀버튼 노래대영', stock:25 }, { name:'말랑핀버튼 꺄악대영', stock:25 }] },
-  { rank:6, rankLabel:'6th', weight:123, particles:false, variants:[{ name:'안경닦이 보라',        stock:50  }, { name:'안경닦이 민트', stock:50 }, { name:'안경닦이 파랑', stock:50 }] },
+  { rank:6, rankLabel:'6th', weight:123, particles:false, variants:[{ name:'안경닦이', stock:150 }] },
   { rank:7, rankLabel:'7th', weight:240, particles:false, variants:[{ name:'포토카드',             stock:240 }] },
 ];
 PRIZES.forEach(p => { p.maxStock = p.variants.reduce((s,v) => s+v.stock, 0); });
