@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Lucky Draw — Verdant Room</title>
+<title>2026 The Verdant Room — Lucky Draw</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+KR:wght@300;400&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -577,14 +577,16 @@ function updateCounterDisplay(n) {
   if (el) el.textContent = n;
 }
 
-// DB 재고 동기화 (로컬 stock 값을 그대로 씀)
+// DB 재고 원자적 차감 (RPC — 동시 요청 충돌 방지)
 async function syncStockToDB(variant) {
   if (!variant.db_id) return;
   try {
-    await sbFetch(`/rest/v1/stock?id=eq.${variant.db_id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ stock: variant.stock })
+    const result = await sbFetch('/rest/v1/rpc/decrement_stock', {
+      method: 'POST',
+      body: JSON.stringify({ row_id: variant.db_id })
     });
+    // DB에서 반환된 실제 stock 값으로 로컬 동기화
+    if (typeof result === 'number') variant.stock = result;
   } catch (e) {
     console.warn('DB 동기화 실패:', e);
   }
@@ -643,13 +645,10 @@ function buildQueue(count) {
     results.push({ prize, variantName: variant.name });
   }
 
-  // 로컬 차감 완료 후 변경된 variant들 DB에 한 번에 동기화
-  // 중복 variant는 최종 stock 값 하나만 보내면 됨
-  const synced = new Set();
-  results.forEach(({ prize }) => {
+  // 각 뽑기 결과를 DB에 원자적으로 차감
+  results.forEach(({ prize, variantName }) => {
     prize.variants.forEach(v => {
-      if (!synced.has(v.name) && v.db_id !== undefined) {
-        synced.add(v.name);
+      if (v.name === variantName && v.db_id !== undefined) {
         syncStockToDB(v);
       }
     });
@@ -697,14 +696,11 @@ function beginDraw() {
 async function incrementCounter() {
   if (!counterDbId) return;
   try {
-    const rows = await sbFetch(`/rest/v1/stock?id=eq.${counterDbId}&select=stock`);
-    const current = rows[0]?.stock || 0;
-    const next = current + 1;
-    await sbFetch(`/rest/v1/stock?id=eq.${counterDbId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ stock: next })
+    const result = await sbFetch('/rest/v1/rpc/increment_counter', {
+      method: 'POST',
+      body: JSON.stringify({ row_id: counterDbId })
     });
-    updateCounterDisplay(next);
+    if (typeof result === 'number') updateCounterDisplay(result);
   } catch(e) {
     console.warn('카운터 업데이트 실패:', e);
   }
