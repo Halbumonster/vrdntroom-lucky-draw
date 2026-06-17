@@ -322,6 +322,23 @@
     cursor:pointer; display:flex; align-items:center; justify-content:center; z-index:80;
   }
 
+
+  #adminRows {
+    max-height:48vh;
+    overflow-y:auto;
+    display:flex; flex-direction:column; gap:9px;
+    -webkit-overflow-scrolling:touch;
+  }
+  #adminRows::-webkit-scrollbar { width:3px; }
+  #adminRows::-webkit-scrollbar-thumb { background:rgba(106,158,120,0.3); border-radius:2px; }
+  #stockBar {
+    max-height:48vh;
+    overflow-y:auto;
+    display:flex; flex-direction:column; gap:6px;
+    -webkit-overflow-scrolling:touch;
+  }
+  #stockBar::-webkit-scrollbar { width:3px; }
+  #stockBar::-webkit-scrollbar-thumb { background:rgba(106,158,120,0.3); border-radius:2px; }
 </style>
 </head>
 <body>
