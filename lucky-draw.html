@@ -470,14 +470,17 @@
 // PRIZES CONFIG
 // ════════════════════════════
 let PRIZES = [
-  { rank:1, rankLabel:'1st', weight:2,   particles:true,  variants:[{ name:'전시 액자',           stock:3   }] },
-  { rank:2, rankLabel:'2nd', weight:4,   particles:true,  variants:[{ name:'티셔츠',               stock:5   }] },
-  { rank:3, rankLabel:'3rd', weight:8,   particles:false, variants:[{ name:'타올슬로건',           stock:10  }] },
-  { rank:3, rankLabel:'3rd', weight:10,  particles:false, variants:[{ name:'미니우치와',           stock:12  }] },
-  { rank:4, rankLabel:'4th', weight:10,  particles:false, variants:[{ name:'리유저블컵',           stock:12  }] },
-  { rank:5, rankLabel:'5th', weight:82,  particles:false, variants:[{ name:'말랑핀버튼 쁘이대영',  stock:25  }, { name:'말랑핀버튼 뿌우대영', stock:25 }, { name:'말랑핀버튼 노래대영', stock:25 }, { name:'말랑핀버튼 꺄악대영', stock:25 }] },
-  { rank:6, rankLabel:'6th', weight:123, particles:false, variants:[{ name:'안경닦이', stock:150 }] },
-  { rank:7, rankLabel:'7th', weight:240, particles:false, variants:[{ name:'포토카드',             stock:240 }] },
+  { rank:1, rankLabel:'1st', weight:5,   particles:true,  variants:[{ name:'전시 액자',           stock:3   }] },
+  { rank:2, rankLabel:'2nd', weight:9,   particles:true,  variants:[{ name:'티셔츠',               stock:5   }] },
+  { rank:3, rankLabel:'3rd', weight:21,  particles:false, variants:[{ name:'타올슬로건',           stock:12  }] },
+  { rank:3, rankLabel:'3rd', weight:29,  particles:false, variants:[{ name:'미니우치와',           stock:16  }] },
+  { rank:4, rankLabel:'4th', weight:27,  particles:false, variants:[{ name:'리유저블컵',           stock:15  }] },
+  { rank:5, rankLabel:'5th', weight:54,  particles:false, variants:[{ name:'말랑핀버튼 쁘이대영',  stock:30  }] },
+  { rank:5, rankLabel:'5th', weight:46,  particles:false, variants:[{ name:'말랑핀버튼 뿌우대영',  stock:26  }] },
+  { rank:5, rankLabel:'5th', weight:46,  particles:false, variants:[{ name:'말랑핀버튼 노래대영',  stock:26  }] },
+  { rank:5, rankLabel:'5th', weight:45,  particles:false, variants:[{ name:'말랑핀버튼 꺄악대영',  stock:25  }] },
+  { rank:6, rankLabel:'6th', weight:268, particles:false, variants:[{ name:'안경닦이',             stock:150 }] },
+  { rank:7, rankLabel:'7th', weight:450, particles:false, variants:[{ name:'포토카드',             stock:263 }] },
 ];
 PRIZES.forEach(p => { p.maxStock = p.variants.reduce((s,v) => s+v.stock, 0); });
 
